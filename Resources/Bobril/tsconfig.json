@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "strictNullChecks": true,
+    "strict": true,
+    "reactNamespace": "b",
+    "outFile": "./lib.js",
+    "module": "amd",
+    "lib": [
+      "es2015",
+      "es5",
+      "dom"
+    ]
+  },
+  "files": [
+    "lib.ts"
+  ]
+  
+}

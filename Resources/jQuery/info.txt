@@ -1,0 +1,2 @@
+Downloaded from
+https://unpkg.com/jquery@3.4.1/dist/jquery.js

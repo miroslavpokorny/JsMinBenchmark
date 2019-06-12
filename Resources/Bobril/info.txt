@@ -1,0 +1,8 @@
+Downloaded from
+https://unpkg.com/bobril@11.2.0/index.ts
+
+To compile ts file use following command
+
+tsc 
+
+lib.js is compiled using typescript 3.5.1
