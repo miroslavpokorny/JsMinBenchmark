@@ -17,9 +17,9 @@
 
     <ItemGroup>
       <None Remove="Tools\tools.json" />
-      <Resource Include="Tools\tools.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Resource>
+      <Content Include="Tools\tools.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

@@ -38,19 +38,22 @@
     {
       "name": "Dojo ShrinkSafe",
       "download": {
-        "url": "https://download.dojotoolkit.org/current-stable/dojo-release-1.7.2-shrinksafe.zip"
+        "url": "https://download.dojotoolkit.org/current-stable/dojo-release-1.7.2-shrinksafe.zip",
+        "fileName": "dojoshrinksafe.zip"
       }
     },
     {
       "name": "YUICompressor",
       "download": {
-        "url": "https://github.com/yui/yuicompressor/releases/download/v2.4.8/yuicompressor-2.4.8.zip"
+        "url": "https://github.com/yui/yuicompressor/releases/download/v2.4.8/yuicompressor-2.4.8.zip",
+        "fileName": "yuicompressor.zip"
       }
     },
     {
       "name": "Google Closure Compiler",
       "download": {
-        "url": "https://github.com/google/closure-compiler/archive/v20190528.zip"
+        "url": "https://github.com/google/closure-compiler/archive/v20190528.zip",
+        "fileName": "googleclosurecompiler.zip"
       }
     }
   ]
