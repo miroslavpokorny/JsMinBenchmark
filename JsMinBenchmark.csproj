@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <TypeScriptCompile Include="Resources\Bobril\lib.ts" />
+      <TypeScriptCompile Include="TestFiles\Bobril\lib.ts" />
     </ItemGroup>
 
 </Project>
