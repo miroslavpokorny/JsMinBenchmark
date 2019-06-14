@@ -1,6 +1,10 @@
 using System;
+using System.IO;
+using System.Net;
 using CommandLine;
 using JsMinBenchmark.Cli;
+using JsMinBenchmark.Tools;
+using Newtonsoft.Json;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
@@ -52,12 +56,14 @@ namespace JsMinBenchmark
         int RunBenchmark(BenchmarkOptions options)
         {
             _logger.Info("Benchmark");
+            var toolsInfo = JsonConvert.DeserializeObject<ToolsJson>(File.ReadAllText("./Tools/tools.json"));
             throw new NotImplementedException();
         }
 
         int RunInitializeTools(InitializeToolsOptions options)
         {
             _logger.Info("InitializeTools");
+            var toolsInfo = JsonConvert.DeserializeObject<ToolsJson>(File.ReadAllText("./Tools/tools.json"));
             throw new NotImplementedException();
         }
     }

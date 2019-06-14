@@ -1,0 +1,57 @@
+{
+  "tools": [
+    {
+      "name": "UglifyJS 2",
+      "npm": {
+        "package": "uglify-js",
+        "version": "2.8.29"
+      }
+    },
+    {
+      "name": "UglifyJS 3",
+      "npm": {
+        "package": "uglify-js",
+        "version": "3.6.0"
+      }
+    },
+    {
+      "name": "Terser",
+      "npm": {
+        "package": "terser",
+        "version": "4.0.0"
+      }
+    },
+    {
+      "name": "esmangle",
+      "npm": {
+        "package": "esmangle",
+        "version": "1.0.1"
+      }
+    },
+    {
+      "name": "babel-minify (beta)",
+      "npm": {
+        "package": "babel-minify",
+        "version": "0.5.0"
+      }
+    },
+    {
+      "name": "Dojo ShrinkSafe",
+      "download": {
+        "url": "https://download.dojotoolkit.org/current-stable/dojo-release-1.7.2-shrinksafe.zip"
+      }
+    },
+    {
+      "name": "YUICompressor",
+      "download": {
+        "url": "https://github.com/yui/yuicompressor/releases/download/v2.4.8/yuicompressor-2.4.8.zip"
+      }
+    },
+    {
+      "name": "Google Closure Compiler",
+      "download": {
+        "url": "https://github.com/google/closure-compiler/archive/v20190528.zip"
+      }
+    }
+  ]
+}
