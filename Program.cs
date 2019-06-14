@@ -1,12 +1,10 @@
-﻿using System;
-
-namespace JsBenchmark
+﻿namespace JsMinBenchmark
 {
     class Program
-    {
-        static void Main(string[] args)
+    {        
+        static int Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            return new Application(args).Start();
         }
     }
 }

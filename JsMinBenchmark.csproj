@@ -9,4 +9,9 @@
       <TypeScriptCompile Include="TestFiles\Bobril\lib.ts" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="CommandLineParser" Version="2.5.0" />
+      <PackageReference Include="NLog" Version="4.6.5" />
+    </ItemGroup>
+
 </Project>
