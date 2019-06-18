@@ -1,0 +1,29 @@
+{
+  "testFiles": [
+    {
+      "name": "Bobril",
+      "version": "11.2.0",
+      "directory": "Bobril"
+    },
+    {
+      "name": "jQuery",
+      "version": "3.4.1",
+      "directory": "jQuery"
+    },
+    {
+      "name": "Moment",
+      "version": "2.24.0",
+      "directory": "Moment"
+    },
+    {
+      "name": "ReactDOM",
+      "version": "16.9.0-alpha.0",
+      "directory": "ReactDom"
+    },
+    {
+      "name": "Vue.js",
+      "version": "2.6.10",
+      "directory": "VueJs"
+    }
+  ] 
+}

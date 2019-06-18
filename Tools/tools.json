@@ -5,56 +5,73 @@
       "npm": {
         "package": "uglify-js",
         "version": "2.8.29"
-      }
+      },
+      "execCommand": "uglifyjs",
+      "execArguments": "%INPUT_FILE%"
     },
     {
       "name": "UglifyJS 3",
       "npm": {
         "package": "uglify-js",
         "version": "3.6.0"
-      }
+      },
+      "execCommand": "uglifyjs",
+      "execArguments": "%INPUT_FILE%"
     },
     {
       "name": "Terser",
       "npm": {
         "package": "terser",
         "version": "4.0.0"
-      }
+      },
+      "execCommand": "terser",
+      "execArguments": "%INPUT_FILE%"
     },
     {
       "name": "esmangle",
       "npm": {
         "package": "esmangle",
         "version": "1.0.1"
-      }
+      },
+      "execCommand": "esmangle",
+      "execArguments": "%INPUT_FILE%"
     },
     {
       "name": "babel-minify (beta)",
       "npm": {
         "package": "babel-minify",
         "version": "0.5.0"
-      }
+      },
+      "execCommand": "minify",
+      "execArguments": "%INPUT_FILE%"
     },
     {
       "name": "Dojo ShrinkSafe",
       "download": {
         "url": "https://download.dojotoolkit.org/current-stable/dojo-release-1.7.2-shrinksafe.zip",
         "fileName": "dojoshrinksafe.zip"
-      }
+      },
+      "execCommand": "java",
+      "execArguments": "-jar shrinksafe.jar %INPUT_FILE%",
+      "execDir": "./dojo-release-1.7.2-shrinksafe"
     },
     {
       "name": "YUICompressor",
       "download": {
         "url": "https://github.com/yui/yuicompressor/releases/download/v2.4.8/yuicompressor-2.4.8.zip",
         "fileName": "yuicompressor.zip"
-      }
+      },
+      "execCommand": "java",
+      "execArguments": " -jar yuicompressor-2.4.8.jar --nomunge %INPUT_FILE%"
     },
     {
       "name": "Google Closure Compiler",
       "download": {
-        "url": "https://github.com/google/closure-compiler/archive/v20190528.zip",
+        "url": "https://dl.google.com/closure-compiler/compiler-20190528.zip",
         "fileName": "googleclosurecompiler.zip"
-      }
+      },
+      "execCommand": "java",
+      "execArguments": " -jar closure-compiler-v20190528.jar %INPUT_FILE%"
     }
   ]
 }

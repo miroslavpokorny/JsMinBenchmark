@@ -7,7 +7,9 @@ using System.IO.Compression;
 using System.Net;
 using System.Threading.Tasks;
 using CommandLine;
+using JsMinBenchmark.Benchmark;
 using JsMinBenchmark.Cli;
+using JsMinBenchmark.JsonInput;
 using JsMinBenchmark.Tools;
 using Newtonsoft.Json;
 using NLog;
@@ -61,8 +63,87 @@ namespace JsMinBenchmark
         
         int RunBenchmark(BenchmarkOptions options)
         {
-            _logger.Info("Benchmark");
+            _logger.Info("Starting Benchmark");
             var toolsInfo = JsonConvert.DeserializeObject<ToolsJson>(File.ReadAllText("./Tools/tools.json"));
+            var testFilesDir = "./TestFiles";
+            var workingDir = "./temp";
+            var testFilesInfo =
+                JsonConvert.DeserializeObject<TestFilesJson>(File.ReadAllText($"{testFilesDir}/testFiles.json"));
+
+            var benchmarkResults = new List<BenchmarkResult>();
+            
+            var stopwatch = new Stopwatch();
+            
+            foreach (var testFile in testFilesInfo.TestFiles)
+            {
+                var testFilePath = Path.GetFullPath($"{testFilesDir}/{testFile.Directory}/lib.js");
+                if (!File.Exists(testFilePath))
+                {
+                    _logger.Warn($"test file: {testFilePath} Was not found!");
+                    continue;
+                }
+
+                _logger.Info($"Starting benchmark of {testFile.Name}@{testFile.Version}");
+
+                var result = new BenchmarkResult($"{testFile.Name}@{testFile.Version}");
+                foreach (var tool in toolsInfo.Tools)
+                {
+                    var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
+                    var toolDirPath = $"{workingDir}/{tool.Name}{(tool.Npm == null ? "" : "/node_modules/.bin")}{(tool.ExecDir == null ? "" : $"/{tool.ExecDir}")}";
+                    var outputData = new List<string>();
+                    var processFinished = false;
+                    var processExitCode = 0;
+                    var process = new Process
+                    {
+                        StartInfo = new ProcessStartInfo
+                        {
+                            FileName = isWindows ? "cmd.exe" : "bash",
+                            // FileName = tool.ExecCommand,
+                            // Arguments = tool.ExecArguments.Replace("%INPUT_FILE%", testFilePath),
+                            UseShellExecute = false,
+                            CreateNoWindow = false,
+                            WorkingDirectory = toolDirPath,
+                            RedirectStandardOutput = true,
+                            RedirectStandardInput = true
+                        },
+                        EnableRaisingEvents = true
+                    };
+
+                    process.Exited += (sender, args) =>
+                    {
+                        processExitCode = process.ExitCode;
+                        processFinished = true;
+                        process.Dispose();
+                    };
+
+                    process.OutputDataReceived += (sender, args) => { outputData.Add(args.Data); };
+                    
+                    stopwatch.Reset();
+                    
+                    process.Start();
+                    // TODO debug 
+                    process.StandardInput.WriteLine($"{tool.ExecCommand} {tool.ExecArguments.Replace("%INPUT_FILE%", testFilePath)} {(isWindows ? " & exit %errorlevel%" : " && exit $?")}");
+                    process.WaitForExit(60 * 1000); // Timeout 1 minute
+                    var timeoutExpired = !processFinished;
+                    stopwatch.Stop();
+                    
+                    result.ExecutionResults.Add(new ExecutionResult
+                    {
+                        ToolName = tool.Name,
+                        ExecutionTime = stopwatch.Elapsed,
+                        Result = string.Join("", outputData),
+                        ExitCode = processExitCode,
+                        IsTimeoutExpired = timeoutExpired
+                    });
+                }
+
+                benchmarkResults.Add(result);
+                _logger.Info($"Benchmark of {testFile.Name}@{testFile.Version} ended");
+            }
+            
+            _logger.Info("Benchmark done");
+            
+            
             throw new NotImplementedException();
         }
 
@@ -104,7 +185,7 @@ namespace JsMinBenchmark
             async Task InitNpmTool(Tool tool)
             {
                 var package = $"{tool.Npm.Package}@{tool.Npm.Version}";
-                var workingDirectory = $"{workingDir}/{tool.Npm.Package}";
+                var workingDirectory = $"{workingDir}/{tool.Name}";
                 Directory.CreateDirectory(workingDirectory);
                 _logger.Info($"Initialization of npm package {package}");
                 var processStartInfo = new ProcessStartInfo
@@ -130,7 +211,7 @@ namespace JsMinBenchmark
                 var downloadFileName = $"{workingDir}/{tool.Download.FileName}";
                 await webClient.DownloadFileTaskAsync(tool.Download.Url, downloadFileName);
                 _logger.Info($"File downloaded {tool.Download.FileName}. starting extraction of archive ");
-                ZipFile.ExtractToDirectory(downloadFileName, $"{workingDir}/{Path.GetFileNameWithoutExtension(downloadFileName)}");
+                ZipFile.ExtractToDirectory(downloadFileName, $"{workingDir}/{tool.Name}");
                 _logger.Info($"Archive {tool.Download.FileName} extracted");
             }
         }

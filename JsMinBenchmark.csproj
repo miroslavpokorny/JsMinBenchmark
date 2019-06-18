@@ -6,10 +6,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <TypeScriptCompile Include="TestFiles\Bobril\lib.ts" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="CommandLineParser" Version="2.5.0" />
       <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
       <PackageReference Include="NLog" Version="4.6.5" />
@@ -19,6 +15,13 @@
       <None Remove="Tools\tools.json" />
       <Content Include="Tools\tools.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="TestFiles/**/*" />
+      <Content Include="TestFiles/**/*">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
 
