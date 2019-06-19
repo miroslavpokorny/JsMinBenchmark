@@ -7,6 +7,7 @@ namespace JsMinBenchmark.Benchmark
         string ToolName { get; }
         TimeSpan ExecutionTime { get; }
         string Result { get; }
+        string Error { get; }
         int ExitCode { get; }
         bool IsTimeoutExpired { get; }
         int Utf8Size { get; }

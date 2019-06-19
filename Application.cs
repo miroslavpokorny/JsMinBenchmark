@@ -11,10 +11,10 @@ using JsMinBenchmark.Benchmark;
 using JsMinBenchmark.Cli;
 using JsMinBenchmark.JsonInput;
 using JsMinBenchmark.Tools;
+using JsMinBenchmark.Util;
 using Newtonsoft.Json;
 using NLog;
 using NLog.Config;
-using NLog.Fluent;
 using NLog.Targets;
 
 namespace JsMinBenchmark
@@ -71,9 +71,7 @@ namespace JsMinBenchmark
                 JsonConvert.DeserializeObject<TestFilesJson>(File.ReadAllText($"{testFilesDir}/testFiles.json"));
 
             var benchmarkResults = new List<BenchmarkResult>();
-            
-            var stopwatch = new Stopwatch();
-            
+
             foreach (var testFile in testFilesInfo.TestFiles)
             {
                 var testFilePath = Path.GetFullPath($"{testFilesDir}/{testFile.Directory}/lib.js");
@@ -83,67 +81,61 @@ namespace JsMinBenchmark
                     continue;
                 }
 
-                _logger.Info($"Starting benchmark of {testFile.Name}@{testFile.Version}");
+                _logger.Info($"Starting benchmark suite of {testFile.Name}@{testFile.Version}");
 
                 var result = new BenchmarkResult($"{testFile.Name}@{testFile.Version}");
                 foreach (var tool in toolsInfo.Tools)
                 {
-                    var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
+                    _logger.Info($"Starting benchmark with tool {tool.Name}");
                     var toolDirPath = $"{workingDir}/{tool.Name}{(tool.Npm == null ? "" : "/node_modules/.bin")}{(tool.ExecDir == null ? "" : $"/{tool.ExecDir}")}";
-                    var outputData = new List<string>();
-                    var processFinished = false;
-                    var processExitCode = 0;
-                    var process = new Process
+                    
+                    // TODO remove this => DEBUG
+                    if (tool.ExecCommand != "java")
                     {
-                        StartInfo = new ProcessStartInfo
-                        {
-                            FileName = isWindows ? "cmd.exe" : "bash",
-                            // FileName = tool.ExecCommand,
-                            // Arguments = tool.ExecArguments.Replace("%INPUT_FILE%", testFilePath),
-                            UseShellExecute = false,
-                            CreateNoWindow = false,
-                            WorkingDirectory = toolDirPath,
-                            RedirectStandardOutput = true,
-                            RedirectStandardInput = true
-                        },
-                        EnableRaisingEvents = true
+                        continue;
+                    }
+                    
+                    File.Copy(testFilePath, Path.GetFullPath(toolDirPath + "/lib.js"), true);
+
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = tool.ExecCommand,
+                        Arguments = tool.ExecArguments.Replace("%INPUT_FILE%", "lib.js"),
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        WorkingDirectory = Path.GetFullPath(toolDirPath),
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
                     };
 
-                    process.Exited += (sender, args) =>
+                    var processResult = startInfo.RunAndMeasureProcess();
+                    if (processResult.IsTimeoutExpired)
                     {
-                        processExitCode = process.ExitCode;
-                        processFinished = true;
-                        process.Dispose();
-                    };
-
-                    process.OutputDataReceived += (sender, args) => { outputData.Add(args.Data); };
-                    
-                    stopwatch.Reset();
-                    
-                    process.Start();
-                    // TODO debug 
-                    process.StandardInput.WriteLine($"{tool.ExecCommand} {tool.ExecArguments.Replace("%INPUT_FILE%", testFilePath)} {(isWindows ? " & exit %errorlevel%" : " && exit $?")}");
-                    process.WaitForExit(60 * 1000); // Timeout 1 minute
-                    var timeoutExpired = !processFinished;
-                    stopwatch.Stop();
+                        _logger.Warn("Benchmark has timeouted!");
+                    }
+                    else
+                    {
+                        _logger.Info("Benchmark finished");
+                    }
                     
                     result.ExecutionResults.Add(new ExecutionResult
                     {
                         ToolName = tool.Name,
-                        ExecutionTime = stopwatch.Elapsed,
-                        Result = string.Join("", outputData),
-                        ExitCode = processExitCode,
-                        IsTimeoutExpired = timeoutExpired
+                        ExecutionTime = processResult.ExecutionTime,
+                        Result = processResult.StdOut,
+                        Error = processResult.StdErr,
+                        ExitCode = processResult.ExitCode,
+                        IsTimeoutExpired = processResult.IsTimeoutExpired
                     });
                 }
 
                 benchmarkResults.Add(result);
-                _logger.Info($"Benchmark of {testFile.Name}@{testFile.Version} ended");
+                _logger.Info($"Benchmark suite of {testFile.Name}@{testFile.Version} ended");
             }
             
             _logger.Info("Benchmark done");
             
-            
+            // Output results as table
             throw new NotImplementedException();
         }
 
@@ -196,7 +188,7 @@ namespace JsMinBenchmark
                     Arguments = $"install {package}",
                     WorkingDirectory = workingDirectory
                 };
-                var exitCode = await RunProcessAsync(processStartInfo);
+                var exitCode = await processStartInfo.RunProcessAsync();
                 if (exitCode != 0)
                 {
                     throw new Exception($"npm process for package {package} exited with non zero code {exitCode}");
@@ -214,27 +206,6 @@ namespace JsMinBenchmark
                 ZipFile.ExtractToDirectory(downloadFileName, $"{workingDir}/{tool.Name}");
                 _logger.Info($"Archive {tool.Download.FileName} extracted");
             }
-        }
-        
-        static Task<int> RunProcessAsync(ProcessStartInfo processStartInfo)
-        {
-            var tcs = new TaskCompletionSource<int>();
-
-            var process = new Process
-            {
-                StartInfo = processStartInfo,
-                EnableRaisingEvents = true
-            };
-
-            process.Exited += (sender, args) =>
-            {
-                tcs.SetResult(process.ExitCode);
-                process.Dispose();
-            };
-
-            process.Start();
-
-            return tcs.Task;
         }
     }
 }
