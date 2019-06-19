@@ -10,6 +10,7 @@ using CommandLine;
 using JsMinBenchmark.Benchmark;
 using JsMinBenchmark.Cli;
 using JsMinBenchmark.JsonInput;
+using JsMinBenchmark.Output;
 using JsMinBenchmark.Tools;
 using JsMinBenchmark.Util;
 using Newtonsoft.Json;
@@ -23,12 +24,14 @@ namespace JsMinBenchmark
     {
         private readonly string[] _args;
         private readonly ILogger _logger;
+        private readonly IOutput _output;
         
         public Application(string[] args)
         {
             _args = args;
             InitializeLogger();
             _logger = LogManager.GetCurrentClassLogger();
+            _output = new LatexOutput();
         }
         
         static void InitializeLogger()
@@ -70,7 +73,7 @@ namespace JsMinBenchmark
             var testFilesInfo =
                 JsonConvert.DeserializeObject<TestFilesJson>(File.ReadAllText($"{testFilesDir}/testFiles.json"));
 
-            var benchmarkResults = new List<BenchmarkResult>();
+            var benchmarkResults = new List<IBenchmarkResult>();
 
             foreach (var testFile in testFilesInfo.TestFiles)
             {
@@ -84,7 +87,7 @@ namespace JsMinBenchmark
 
                 _logger.Info($"Starting benchmark suite of {testFile.Name}@{testFile.Version}");
 
-                var result = new BenchmarkResult($"{testFile.Name}@{testFile.Version}");
+                var result = new BenchmarkResult($"{testFile.Name}@{testFile.Version}", new FileInfo(testFilePath).Length);
                 foreach (var tool in toolsInfo.Tools)
                 {
                     _logger.Info($"Starting benchmark with tool {tool.Name}");
@@ -137,9 +140,9 @@ namespace JsMinBenchmark
             }
             
             _logger.Info("Benchmark done");
-            
-            // Output results as table
-            throw new NotImplementedException();
+
+            File.WriteAllText("benchmark-result.tex", _output.GenerateOutput(benchmarkResults));
+            return 0;
         }
 
         int RunInitializeTools(InitializeToolsOptions options)
