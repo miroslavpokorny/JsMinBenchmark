@@ -74,6 +74,7 @@ namespace JsMinBenchmark
 
             foreach (var testFile in testFilesInfo.TestFiles)
             {
+                var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
                 var testFilePath = Path.GetFullPath($"{testFilesDir}/{testFile.Directory}/lib.js");
                 if (!File.Exists(testFilePath))
                 {
@@ -88,19 +89,21 @@ namespace JsMinBenchmark
                 {
                     _logger.Info($"Starting benchmark with tool {tool.Name}");
                     var toolDirPath = $"{workingDir}/{tool.Name}{(tool.Npm == null ? "" : "/node_modules/.bin")}{(tool.ExecDir == null ? "" : $"/{tool.ExecDir}")}";
-                    
-                    // TODO remove this => DEBUG
-                    if (tool.ExecCommand != "java")
+
+                    var execCommand = tool.ExecCommand;
+                    var execArguments = tool.ExecArguments.Replace("%INPUT_FILE%", testFilePath);
+                    var isScript = tool.ExecCommand.StartsWith("./");
+
+                    if (isScript)
                     {
-                        continue;
+                        execArguments = $"{(isWindows ? $"/C {execCommand.Substring(2)}" : $"-C {execCommand}")} {execArguments}";
+                        execCommand = isWindows ? "cmd.exe" : "bash";
                     }
-                    
-                    File.Copy(testFilePath, Path.GetFullPath(toolDirPath + "/lib.js"), true);
 
                     var startInfo = new ProcessStartInfo
                     {
-                        FileName = tool.ExecCommand,
-                        Arguments = tool.ExecArguments.Replace("%INPUT_FILE%", "lib.js"),
+                        FileName = execCommand,
+                        Arguments = execArguments,
                         UseShellExecute = false,
                         CreateNoWindow = true,
                         WorkingDirectory = Path.GetFullPath(toolDirPath),
