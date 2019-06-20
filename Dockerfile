@@ -49,4 +49,4 @@ COPY --from=build /app/out ./
 
 RUN ./JsMinBenchmark init-tools
 
-ENTRYPOINT [ "./JsMinBenchmark", "benchmark" ]
+ENTRYPOINT [ "./JsMinBenchmark", "benchmark",  "--output", "console" ]

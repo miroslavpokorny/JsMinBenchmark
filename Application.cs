@@ -141,7 +141,20 @@ namespace JsMinBenchmark
             
             _logger.Info("Benchmark done");
 
-            File.WriteAllText("benchmark-result.tex", _output.GenerateOutput(benchmarkResults));
+            var output = _output.GenerateOutput(benchmarkResults);
+            switch(options.Output.ToLower()) {
+                case "file":
+                    File.WriteAllText(options.OutputFile, output);
+                    break;
+                case "console": 
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.WriteLine(output);
+                    break;
+                default: 
+                    throw new ArgumentException("output argument has unknown value");
+            }
+            
             return 0;
         }
 
