@@ -670,3 +670,7 @@ fabric.properties
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 
 # End of https://www.gitignore.io/api/node,rider,csharp,visualstudio,visualstudiocode
+
+
+temp/
+benchmark-result.tex

@@ -91,7 +91,7 @@ namespace JsMinBenchmark
                 foreach (var tool in toolsInfo.Tools)
                 {
                     _logger.Info($"Starting benchmark with tool {tool.Name}");
-                    var toolDirPath = $"{workingDir}/{tool.Name}{(tool.Npm == null ? "" : "/node_modules/.bin")}{(tool.ExecDir == null ? "" : $"/{tool.ExecDir}")}";
+                    var toolDirPath = $"{workingDir}/{tool.Name.Replace(' ', '_')}{(tool.Npm == null ? "" : "/node_modules/.bin")}{(tool.ExecDir == null ? "" : $"/{tool.ExecDir}")}";
 
                     var execCommand = tool.ExecCommand;
                     var execArguments = tool.ExecArguments.Replace("%INPUT_FILE%", testFilePath);
@@ -99,8 +99,8 @@ namespace JsMinBenchmark
 
                     if (isScript)
                     {
-                        execArguments = $"{(isWindows ? $"/C {execCommand.Substring(2)}" : $"-C {execCommand}")} {execArguments}";
-                        execCommand = isWindows ? "cmd.exe" : "bash";
+                        execArguments = $"{(isWindows ? $"/C {execCommand.Substring(2)}" : $"-c \"{execCommand}")} {execArguments}{(isWindows ? "" : "\"")}";
+                        execCommand = isWindows ? "cmd.exe" : "/bin/bash";
                     }
 
                     var startInfo = new ProcessStartInfo
@@ -182,16 +182,17 @@ namespace JsMinBenchmark
 
             async Task InitNpmTool(Tool tool)
             {
+                var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
                 var package = $"{tool.Npm.Package}@{tool.Npm.Version}";
-                var workingDirectory = $"{workingDir}/{tool.Name}";
+                var workingDirectory = $"{workingDir}/{tool.Name.Replace(' ', '_')}";
                 Directory.CreateDirectory(workingDirectory);
                 _logger.Info($"Initialization of npm package {package}");
                 var processStartInfo = new ProcessStartInfo
                 {
-                    FileName = "npm",
-                    UseShellExecute = true,
+                    FileName = isWindows ? "cmd.exe" : "/bin/bash",
+                    UseShellExecute = false,
                     CreateNoWindow = true,
-                    Arguments = $"install {package}",
+                    Arguments = $"{(isWindows ? "/C " : "-c \"")}npm install {package}{(isWindows ? "" : "\"")}",
                     WorkingDirectory = workingDirectory
                 };
                 var exitCode = await processStartInfo.RunProcessAsync();
@@ -209,7 +210,7 @@ namespace JsMinBenchmark
                 var downloadFileName = $"{workingDir}/{tool.Download.FileName}";
                 await webClient.DownloadFileTaskAsync(tool.Download.Url, downloadFileName);
                 _logger.Info($"File downloaded {tool.Download.FileName}. starting extraction of archive ");
-                ZipFile.ExtractToDirectory(downloadFileName, $"{workingDir}/{tool.Name}");
+                ZipFile.ExtractToDirectory(downloadFileName, $"{workingDir}/{tool.Name.Replace(' ', '_')}");
                 _logger.Info($"Archive {tool.Download.FileName} extracted");
             }
         }
