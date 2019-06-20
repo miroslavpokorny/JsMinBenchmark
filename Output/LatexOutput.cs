@@ -89,7 +89,7 @@ namespace JsMinBenchmark.Output
             _result.Append($"{benchmarkResult.LibraryName}");
             foreach (var result in benchmarkResult.ExecutionResults)
             {
-                _result.Append($" & {result.ExecutionTime}");
+                _result.Append($" & {result.ExecutionTime:s\\.fff}s");
             }
             
 //            _result.AppendLine($" \\\\ \\cline{{2-{columns}}}");
