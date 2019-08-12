@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using JsMinBenchmark.Benchmark;
 
@@ -6,8 +7,14 @@ namespace JsMinBenchmark.Output
 {
     public class LatexOutput : IOutput
     {
+        private readonly int _maxToolsPerRow;
         private StringBuilder _result;
-        
+
+        public LatexOutput(int maxToolsPerRow)
+        {
+            _maxToolsPerRow = maxToolsPerRow;
+        }
+
         public string GenerateOutput(IList<IBenchmarkResult> benchmarkResults)
         {
             _result = new StringBuilder();
@@ -16,50 +23,59 @@ namespace JsMinBenchmark.Output
                 return string.Empty;
             }
 
-            GenerateSizeTable(benchmarkResults);
-            GenerateTimeTable(benchmarkResults);
+            GenerateSizeTables(benchmarkResults);
+            GenerateTimeTables(benchmarkResults);
 
             return _result.ToString();
         }
 
-        private void GenerateSizeTable(IList<IBenchmarkResult> benchmarkResults)
+        private void GenerateSizeTables(IList<IBenchmarkResult> benchmarkResults)
         {
-            var columns = benchmarkResults[0].ExecutionResults.Count + 2; 
-
-            BeginTable(columns);
-            var columnNames = new List<string> {"Library Name", "Original size"};
-            foreach (var tool in benchmarkResults[0].ExecutionResults)
+            foreach (var i in Enumerable.Range(0, benchmarkResults[0].ExecutionResults.Count / _maxToolsPerRow))
             {
-                columnNames.Add(tool.ToolName);
+                var currentStartIndex = i * _maxToolsPerRow;
+                var columnNames = new List<string> {"Library Name", "Original size"};
+                
+                foreach (var tool in benchmarkResults[0].ExecutionResults.GetRange(currentStartIndex, _maxToolsPerRow))
+                {
+                    columnNames.Add(tool.ToolName);
+                }
+                
+                BeginTable(columnNames.Count);
+                
+                GenerateHeaderRow(columnNames);
+                
+                foreach (var benchmarkResult in benchmarkResults)
+                {
+                    GenerateSizeRow(benchmarkResult, currentStartIndex);
+                }
+                
+                EndTable();
             }
-            GenerateHeaderRow(columnNames);
-
-            foreach (var benchmarkResult in benchmarkResults)
-            {
-                GenerateSizeRow(benchmarkResult);
-            }
-
-            EndTable();
         }
 
-        private void GenerateTimeTable(IList<IBenchmarkResult> benchmarkResults)
+        private void GenerateTimeTables(IList<IBenchmarkResult> benchmarkResults)
         {
-            var columns = benchmarkResults[0].ExecutionResults.Count + 1;
-
-            BeginTable(columns);
-            var columnNames = new List<string> {"Library Name"};
-            foreach (var tool in benchmarkResults[0].ExecutionResults)
+            foreach (var i in Enumerable.Range(0, benchmarkResults[0].ExecutionResults.Count / _maxToolsPerRow))
             {
-                columnNames.Add(tool.ToolName);
-            }
-            GenerateHeaderRow(columnNames);
+                var currentStartIndex = i * _maxToolsPerRow;
+                var columnNames = new List<string> {"Library Name"};
 
-            foreach (var benchmarkResult in benchmarkResults)
-            {
-                GenerateTimeRow(benchmarkResult);
+                foreach (var tool in benchmarkResults[0].ExecutionResults.GetRange(currentStartIndex, _maxToolsPerRow))
+                {
+                    columnNames.Add(tool.ToolName);
+                }
+                
+                BeginTable(columnNames.Count);
+                GenerateHeaderRow(columnNames);
+                
+                foreach (var benchmarkResult in benchmarkResults)
+                {
+                    GenerateTimeRow(benchmarkResult, currentStartIndex);
+                }
+                
+                EndTable();
             }
-
-            EndTable();
         }
 
         private void BeginTable(int columns)
@@ -83,29 +99,25 @@ namespace JsMinBenchmark.Output
             _result.AppendLine(" \\\\ \\hline");
         }
 
-        private void GenerateTimeRow(IBenchmarkResult benchmarkResult)
+        private void GenerateTimeRow(IBenchmarkResult benchmarkResult, int startIndex)
         {
-            var columns = benchmarkResult.ExecutionResults.Count + 1;
             _result.Append($"{benchmarkResult.LibraryName}");
-            foreach (var result in benchmarkResult.ExecutionResults)
+            foreach (var result in benchmarkResult.ExecutionResults.GetRange(startIndex, _maxToolsPerRow))
             {
                 _result.Append($" & {result.ExecutionTime:s\\.fff}s");
             }
             
-//            _result.AppendLine($" \\\\ \\cline{{2-{columns}}}");
             _result.AppendLine(" \\\\ \\hline");
         }
 
-        private void GenerateSizeRow(IBenchmarkResult benchmarkResult)
+        private void GenerateSizeRow(IBenchmarkResult benchmarkResult, int startIndex)
         {
-            var columns = benchmarkResult.ExecutionResults.Count + 2;
             _result.Append($"{benchmarkResult.LibraryName} & {benchmarkResult.OriginalUtf8Size}");
-            foreach (var result in benchmarkResult.ExecutionResults)
+            foreach (var result in benchmarkResult.ExecutionResults.GetRange(startIndex, _maxToolsPerRow))
             {
                 _result.Append($" & {result.Utf8Size}");
             }
             
-//            _result.AppendLine($" \\\\ \\cline{{2-{columns}}}");
             _result.AppendLine(" \\\\ \\hline");
         }
 

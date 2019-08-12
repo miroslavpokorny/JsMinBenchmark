@@ -24,14 +24,13 @@ namespace JsMinBenchmark
     {
         private readonly string[] _args;
         private readonly ILogger _logger;
-        private readonly IOutput _output;
-        
+        private IOutput _output;
+
         public Application(string[] args)
         {
             _args = args;
             InitializeLogger();
             _logger = LogManager.GetCurrentClassLogger();
-            _output = new LatexOutput();
         }
         
         static void InitializeLogger()
@@ -66,6 +65,7 @@ namespace JsMinBenchmark
         
         int RunBenchmark(BenchmarkOptions options)
         {
+            InitializeOutput(options.MaxToolsPerRow);
             _logger.Info("Starting Benchmark");
             var toolsInfo = JsonConvert.DeserializeObject<ToolsJson>(File.ReadAllText("./Tools/tools.json"));
             var testFilesDir = "./TestFiles";
@@ -156,6 +156,11 @@ namespace JsMinBenchmark
             }
             
             return 0;
+        }
+
+        private void InitializeOutput(int maxToolsPerRow)
+        {
+            _output = new LatexOutput(maxToolsPerRow);
         }
 
         int RunInitializeTools(InitializeToolsOptions options)
