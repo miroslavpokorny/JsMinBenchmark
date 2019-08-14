@@ -31,17 +31,23 @@ namespace JsMinBenchmark.Output
 
         private void GenerateSizeTables(IList<IBenchmarkResult> benchmarkResults)
         {
+            BeginTable();
+            GenerateCaption("Size table");
             foreach (var i in Enumerable.Range(0, benchmarkResults[0].ExecutionResults.Count / _maxToolsPerRow))
             {
                 var currentStartIndex = i * _maxToolsPerRow;
-                var columnNames = new List<string> {"Library Name", "Original size"};
-                
+                var columnNames = new List<string> {"Library Name"};
+                if (i == 0)
+                {
+                    columnNames.Add("Original size");
+                }
+
                 foreach (var tool in benchmarkResults[0].ExecutionResults.GetRange(currentStartIndex, _maxToolsPerRow))
                 {
                     columnNames.Add(tool.ToolName);
                 }
                 
-                BeginTable(columnNames.Count);
+                BeginTabular(columnNames.Count);
                 
                 GenerateHeaderRow(columnNames);
                 
@@ -50,12 +56,17 @@ namespace JsMinBenchmark.Output
                     GenerateSizeRow(benchmarkResult, currentStartIndex);
                 }
                 
-                EndTable();
+                EndTabular();
             }
+
+            GenerateLabel("tab:SizeTable");
+            EndTable();
         }
 
         private void GenerateTimeTables(IList<IBenchmarkResult> benchmarkResults)
         {
+            BeginTable();
+            GenerateCaption("Duration table");
             foreach (var i in Enumerable.Range(0, benchmarkResults[0].ExecutionResults.Count / _maxToolsPerRow))
             {
                 var currentStartIndex = i * _maxToolsPerRow;
@@ -66,7 +77,7 @@ namespace JsMinBenchmark.Output
                     columnNames.Add(tool.ToolName);
                 }
                 
-                BeginTable(columnNames.Count);
+                BeginTabular(columnNames.Count);
                 GenerateHeaderRow(columnNames);
                 
                 foreach (var benchmarkResult in benchmarkResults)
@@ -74,13 +85,30 @@ namespace JsMinBenchmark.Output
                     GenerateTimeRow(benchmarkResult, currentStartIndex);
                 }
                 
-                EndTable();
+                EndTabular();
             }
+
+            GenerateLabel("tab:DurationTable");
+            EndTable();
+        }
+        
+        private void GenerateCaption(string caption)
+        {
+            _result.AppendLine($"\\caption{{{caption}}}");
         }
 
-        private void BeginTable(int columns)
+        private void GenerateLabel(string label)
         {
-            _result.AppendLine("\\begin{table}[]");
+            _result.AppendLine($"\\label{{{label}}}");
+        }
+
+        private void BeginTable()
+        {
+            _result.AppendLine("\\begin{table}[!ht]");
+        }
+
+        private void BeginTabular(int columns)
+        {
             _result.AppendLine($"\\begin{{tabular}}{{|{RepeatString("l|", columns)}}}");
             _result.AppendLine("\\hline");
         }
@@ -112,7 +140,11 @@ namespace JsMinBenchmark.Output
 
         private void GenerateSizeRow(IBenchmarkResult benchmarkResult, int startIndex)
         {
-            _result.Append($"{benchmarkResult.LibraryName} & {benchmarkResult.OriginalUtf8Size}");
+            _result.Append($"{benchmarkResult.LibraryName}");
+            if (startIndex == 0)
+            {
+                _result.Append($" & {benchmarkResult.OriginalUtf8Size}");
+            }
             foreach (var result in benchmarkResult.ExecutionResults.GetRange(startIndex, _maxToolsPerRow))
             {
                 _result.Append($" & {result.Utf8Size}");
@@ -123,8 +155,12 @@ namespace JsMinBenchmark.Output
 
         private void EndTable()
         {
-            _result.AppendLine("\\end{tabular}");
             _result.AppendLine("\\end{table}");
+        }
+
+        private void EndTabular()
+        {
+            _result.AppendLine("\\end{tabular}");
         }
 
         private string RepeatString(string text, int repeat)
