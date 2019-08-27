@@ -1,0 +1,10 @@
+jobs:
+- template: build-and-run.yml
+  parameters:
+    runtime: win-x64
+    image: windows-2019
+
+- template: build-and-run.yml
+  parameters:
+    runtime: linux-x64
+    image: ubuntu-16.04
