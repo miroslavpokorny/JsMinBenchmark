@@ -41,7 +41,7 @@ RUN apt-get update && \
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 RUN export JAVA_HOME
 
-RUN apt-get -y install gcc
+RUN apt-get -y install gcc git
 
 RUN apt-get purge --auto-remove -y curl gnupg \
     && rm -rf /var/lib/apt/lists/*
