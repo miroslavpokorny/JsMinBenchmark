@@ -1,5 +1,5 @@
 using System;
-using System.Text;
+using JsMinBenchmark.Util;
 
 namespace JsMinBenchmark.Benchmark
 {
@@ -11,6 +11,7 @@ namespace JsMinBenchmark.Benchmark
         public string Error { get; set; }
         public int ExitCode { get; set; }
         public bool IsTimeoutExpired { get; set; }
-        public int Utf8Size => Encoding.UTF8.GetBytes(Result).Length;
+        public long Utf8Size => Result.Utf8Length();
+        public long GZipSize => Result.GZipLength();
     }
 }

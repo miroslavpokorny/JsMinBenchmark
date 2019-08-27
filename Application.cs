@@ -88,7 +88,8 @@ namespace JsMinBenchmark
 
                 _logger.Info($"Starting benchmark suite of {testFile.Name}@{testFile.Version}");
 
-                var result = new BenchmarkResult($"{testFile.Name}@{testFile.Version}", new FileInfo(testFilePath).Length);
+                var originalContent = File.ReadAllText(testFilePath);
+                var result = new BenchmarkResult($"{testFile.Name}@{testFile.Version}", originalContent.Utf8Length(), originalContent.GZipLength());
                 foreach (var tool in toolsInfo.Tools)
                 {
                     _logger.Info($"Starting benchmark with tool {tool.Name}");

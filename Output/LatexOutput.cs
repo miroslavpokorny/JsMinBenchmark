@@ -25,15 +25,16 @@ namespace JsMinBenchmark.Output
             }
 
             GenerateSizeTables(benchmarkResults);
+            GenerateSizeTables(benchmarkResults, true);
             GenerateTimeTables(benchmarkResults);
 
             return _result.ToString();
         }
 
-        private void GenerateSizeTables(IList<IBenchmarkResult> benchmarkResults)
+        private void GenerateSizeTables(IList<IBenchmarkResult> benchmarkResults, bool gZippedSize = false)
         {
             BeginTable();
-            GenerateCaption("Size table");
+            GenerateCaption(gZippedSize ? "gzip size table" : "Size table");
             var upperIndex = (int)Math.Ceiling(benchmarkResults[0].ExecutionResults.Count / (double)_maxToolsPerRow);
             foreach (var i in Enumerable.Range(0, upperIndex))
             {
@@ -41,7 +42,7 @@ namespace JsMinBenchmark.Output
                 var columnNames = new List<string> {"Library Name"};
                 if (i == 0)
                 {
-                    columnNames.Add("Original size");
+                    columnNames.Add(gZippedSize ? "gzip size" : "Original size");
                 }
 
                 var numberOfItems = Math.Min(_maxToolsPerRow,
@@ -57,13 +58,13 @@ namespace JsMinBenchmark.Output
                 
                 foreach (var benchmarkResult in benchmarkResults)
                 {
-                    GenerateSizeRow(benchmarkResult, currentStartIndex, numberOfItems);
+                    GenerateSizeRow(benchmarkResult, currentStartIndex, numberOfItems, gZippedSize);
                 }
                 
                 EndTabular();
             }
 
-            GenerateLabel("tab:SizeTable");
+            GenerateLabel(gZippedSize ? "tab:GzipSizeTable" : "tab:SizeTable");
             EndTable();
         }
 
@@ -144,16 +145,16 @@ namespace JsMinBenchmark.Output
             _result.AppendLine(" \\\\ \\hline");
         }
 
-        private void GenerateSizeRow(IBenchmarkResult benchmarkResult, int startIndex, int numberOfItems)
+        private void GenerateSizeRow(IBenchmarkResult benchmarkResult, int startIndex, int numberOfItems, bool gZippedSize)
         {
             _result.Append($"{benchmarkResult.LibraryName}");
             if (startIndex == 0)
             {
-                _result.Append($" & {benchmarkResult.OriginalUtf8Size}");
+                _result.Append($" & {(gZippedSize ? benchmarkResult.OriginalGZipSize : benchmarkResult.OriginalUtf8Size)}");
             }
             foreach (var result in benchmarkResult.ExecutionResults.GetRange(startIndex, numberOfItems))
             {
-                _result.Append($" & {result.Utf8Size}");
+                _result.Append($" & {(gZippedSize ? result.GZipSize : result.Utf8Size)}");
             }
             
             _result.AppendLine(" \\\\ \\hline");

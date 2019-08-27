@@ -10,6 +10,7 @@ namespace JsMinBenchmark.Benchmark
         string Error { get; }
         int ExitCode { get; }
         bool IsTimeoutExpired { get; }
-        int Utf8Size { get; }
+        long Utf8Size { get; }
+        long GZipSize { get; }
     }
 }
