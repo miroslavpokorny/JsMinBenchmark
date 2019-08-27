@@ -1,3 +1,4 @@
+jobs:
 - template: build-and-run.yml
   parameters:
     runtime: win-x64
