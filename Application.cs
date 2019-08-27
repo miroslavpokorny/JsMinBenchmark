@@ -25,6 +25,7 @@ namespace JsMinBenchmark
         private readonly string[] _args;
         private readonly ILogger _logger;
         private IOutput _output;
+        private bool IsWindows => Environment.OSVersion.Platform == PlatformID.Win32NT; 
 
         public Application(string[] args)
         {
@@ -189,6 +190,12 @@ namespace JsMinBenchmark
                     tasks.Add(InitDownloadTool(tool));
                     continue;
                 }
+
+                if (tool.GitSource != null)
+                {
+                    tasks.Add(InitGitSourceTool(tool));
+                    continue;
+                }
                 
                 throw new SyntaxErrorException($"tools.json is invalid. Look at entry with name = {tool.Name}");
             }
@@ -200,19 +207,11 @@ namespace JsMinBenchmark
 
             async Task InitNpmTool(Tool tool)
             {
-                var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
                 var package = $"{tool.Npm.Package}@{tool.Npm.Version}";
                 var workingDirectory = $"{workingDir}/{tool.Name.Replace(' ', '_')}";
                 Directory.CreateDirectory(workingDirectory);
                 _logger.Info($"Initialization of npm package {package}");
-                var processStartInfo = new ProcessStartInfo
-                {
-                    FileName = isWindows ? "cmd.exe" : "/bin/bash",
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    Arguments = $"{(isWindows ? "/C " : "-c \"")}npm install {package}{(isWindows ? "" : "\"")}",
-                    WorkingDirectory = workingDirectory
-                };
+                var processStartInfo = ShellProcessStartInfo($"npm install {package}", workingDirectory);
                 var exitCode = await processStartInfo.RunProcessAsync();
                 if (exitCode != 0)
                 {
@@ -231,6 +230,38 @@ namespace JsMinBenchmark
                 ZipFile.ExtractToDirectory(downloadFileName, $"{workingDir}/{tool.Name.Replace(' ', '_')}");
                 _logger.Info($"Archive {tool.Download.FileName} extracted");
             }
+
+            async Task InitGitSourceTool(Tool tool)
+            {
+                var workingDirectory = $"{workingDir}/{tool.Name.Replace(' ', '_')}";
+                _logger.Info($"Clonning git repository {tool.GitSource.Url}");
+                var processStartInfo = ShellProcessStartInfo($"git clone {tool.GitSource.Url} {tool.Name}", workingDir);
+                var exitCode = await processStartInfo.RunProcessAsync();
+                if (exitCode != 0)
+                {
+                    throw new Exception($"Clonning of repository {tool.GitSource.Url} exited with non zero code {exitCode}");
+                }
+                _logger.Info($"Start building {tool.Name} from git sources");
+                processStartInfo = ShellProcessStartInfo($"{tool.GitSource.BuildCommand}", workingDirectory);
+                exitCode = await processStartInfo.RunProcessAsync();
+                if (exitCode != 0)
+                {
+                    throw new Exception($"Build of {tool.Name} exited with non zero code {exitCode}");
+                }
+                _logger.Info($"Tool {tool.Name} has been successfully builded");
+            }
+        }
+
+        private ProcessStartInfo ShellProcessStartInfo(string command, string workingDirectory)
+        {
+            return new ProcessStartInfo
+            {
+                FileName = IsWindows ? "cmd.exe" : "/bin/bash",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                Arguments = $"{(IsWindows ? "/C " : "-c \"")}{command}{(IsWindows ? "" : "\"")}",
+                WorkingDirectory = workingDirectory
+            };
         }
     }
 }

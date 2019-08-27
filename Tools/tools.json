@@ -1,6 +1,15 @@
 {
   "tools": [
     {
+      "name": "JSMin",
+      "gitSource": {
+        "url": "https://github.com/douglascrockford/JSMin.git",
+        "buildCommand": "gcc -o jsmin jsmin.c"
+      },
+      "execCommand": "jsmin",
+      "execArguments": "%INPUT_FILE%"
+    },
+    {
       "name": "UglifyJS 2",
       "npm": {
         "package": "uglify-js",
