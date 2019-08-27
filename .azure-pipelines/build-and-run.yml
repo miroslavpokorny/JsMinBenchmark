@@ -2,6 +2,7 @@ parameters:
   runtime: ""
   image: ""
 
+jobs:
 - job: 
   displayName: Build ${{ parameters.runtime }}
   pool:
