@@ -1,0 +1,16 @@
+parameters:
+  runtime: ""
+  image: ""
+
+- job: 
+  displayName: Build ${{ parameters.runtime }}
+  pool:
+    vmImage: ${{ parameters.image }}
+  
+  steps:
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      command: build
+      projects: JsMinBenchmark.sln
+      arguments: --configuration Release -o $(Build.BinariesDirectory)
