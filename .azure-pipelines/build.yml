@@ -8,3 +8,22 @@ jobs:
   parameters:
     runtime: linux-x64
     image: ubuntu-16.04
+
+- job:
+  displayName: Build and Run Docker
+  pool:
+    vmImage: ubuntu-16.04
+  steps:
+  - task: Bash@3
+    displayName: Docker build
+    inputs:
+      targetType: 'inline'
+      script: |
+        docker build -t jsminbenchmark:build .
+
+  - task: Bash@3
+    displayName: Docker run
+    inputs:
+      targetType: 'inline'
+      script: |
+        docker run jsminbenchmark:build
