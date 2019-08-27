@@ -6,8 +6,8 @@
         "url": "https://github.com/douglascrockford/JSMin.git",
         "buildCommand": "gcc -o jsmin jsmin.c"
       },
-      "execCommand": "jsmin",
-      "execArguments": "%INPUT_FILE%"
+      "execCommand": "./jsmin",
+      "execArguments": " < %INPUT_FILE%"
     },
     {
       "name": "UglifyJS 2",

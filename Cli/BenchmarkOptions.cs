@@ -11,7 +11,7 @@ namespace JsMinBenchmark.Cli
         [Option("output-file", Required = false, Default = "benchmark-result.tex", HelpText = "Override output file name")]
         public string OutputFile { get; set; }
         
-        [Option('t', "tools-per-row", Required = false, Default = 4, HelpText = "Maximal number of tools per row in output")]
+        [Option('t', "tools-per-row", Required = false, Default = 5, HelpText = "Maximal number of tools per row in output")]
         public int MaxToolsPerRow { get; set; }
     }
 }

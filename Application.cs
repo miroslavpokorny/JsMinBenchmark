@@ -25,7 +25,8 @@ namespace JsMinBenchmark
         private readonly string[] _args;
         private readonly ILogger _logger;
         private IOutput _output;
-        private bool IsWindows => Environment.OSVersion.Platform == PlatformID.Win32NT; 
+        private bool IsWindows => Environment.OSVersion.Platform == PlatformID.Win32NT;
+        private string ShellExecutable => IsWindows ? "cmd.exe" : "/bin/bash";
 
         public Application(string[] args)
         {
@@ -78,7 +79,6 @@ namespace JsMinBenchmark
 
             foreach (var testFile in testFilesInfo.TestFiles)
             {
-                var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
                 var testFilePath = Path.GetFullPath($"{testFilesDir}/{testFile.Directory}/lib.js");
                 if (!File.Exists(testFilePath))
                 {
@@ -100,8 +100,8 @@ namespace JsMinBenchmark
 
                     if (isScript)
                     {
-                        execArguments = $"{(isWindows ? $"/C {execCommand.Substring(2)}" : $"-c \"{execCommand}")} {execArguments}{(isWindows ? "" : "\"")}";
-                        execCommand = isWindows ? "cmd.exe" : "/bin/bash";
+                        execArguments = $"{(IsWindows ? $"/C {execCommand.Substring(2)}" : $"-c \"{execCommand}")} {execArguments}{(IsWindows ? "" : "\"")}";
+                        execCommand = ShellExecutable;
                     }
 
                     var startInfo = new ProcessStartInfo
@@ -256,7 +256,7 @@ namespace JsMinBenchmark
         {
             return new ProcessStartInfo
             {
-                FileName = IsWindows ? "cmd.exe" : "/bin/bash",
+                FileName = ShellExecutable,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 Arguments = $"{(IsWindows ? "/C " : "-c \"")}{command}{(IsWindows ? "" : "\"")}",

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,7 +34,8 @@ namespace JsMinBenchmark.Output
         {
             BeginTable();
             GenerateCaption("Size table");
-            foreach (var i in Enumerable.Range(0, benchmarkResults[0].ExecutionResults.Count / _maxToolsPerRow))
+            var upperIndex = (int)Math.Ceiling(benchmarkResults[0].ExecutionResults.Count / (double)_maxToolsPerRow);
+            foreach (var i in Enumerable.Range(0, upperIndex))
             {
                 var currentStartIndex = i * _maxToolsPerRow;
                 var columnNames = new List<string> {"Library Name"};
@@ -42,7 +44,9 @@ namespace JsMinBenchmark.Output
                     columnNames.Add("Original size");
                 }
 
-                foreach (var tool in benchmarkResults[0].ExecutionResults.GetRange(currentStartIndex, _maxToolsPerRow))
+                var numberOfItems = Math.Min(_maxToolsPerRow,
+                    benchmarkResults[0].ExecutionResults.Count - i * _maxToolsPerRow);
+                foreach (var tool in benchmarkResults[0].ExecutionResults.GetRange(currentStartIndex, numberOfItems))
                 {
                     columnNames.Add(tool.ToolName);
                 }
@@ -53,7 +57,7 @@ namespace JsMinBenchmark.Output
                 
                 foreach (var benchmarkResult in benchmarkResults)
                 {
-                    GenerateSizeRow(benchmarkResult, currentStartIndex);
+                    GenerateSizeRow(benchmarkResult, currentStartIndex, numberOfItems);
                 }
                 
                 EndTabular();
@@ -67,12 +71,14 @@ namespace JsMinBenchmark.Output
         {
             BeginTable();
             GenerateCaption("Duration table");
-            foreach (var i in Enumerable.Range(0, benchmarkResults[0].ExecutionResults.Count / _maxToolsPerRow))
+            var upperIndex = (int)Math.Ceiling(benchmarkResults[0].ExecutionResults.Count / (double)_maxToolsPerRow);
+            foreach (var i in Enumerable.Range(0, upperIndex))
             {
                 var currentStartIndex = i * _maxToolsPerRow;
                 var columnNames = new List<string> {"Library Name"};
-
-                foreach (var tool in benchmarkResults[0].ExecutionResults.GetRange(currentStartIndex, _maxToolsPerRow))
+                var numberOfItems = Math.Min(_maxToolsPerRow,
+                    benchmarkResults[0].ExecutionResults.Count - i * _maxToolsPerRow);
+                foreach (var tool in benchmarkResults[0].ExecutionResults.GetRange(currentStartIndex, numberOfItems))
                 {
                     columnNames.Add(tool.ToolName);
                 }
@@ -82,7 +88,7 @@ namespace JsMinBenchmark.Output
                 
                 foreach (var benchmarkResult in benchmarkResults)
                 {
-                    GenerateTimeRow(benchmarkResult, currentStartIndex);
+                    GenerateTimeRow(benchmarkResult, currentStartIndex, numberOfItems);
                 }
                 
                 EndTabular();
@@ -127,10 +133,10 @@ namespace JsMinBenchmark.Output
             _result.AppendLine(" \\\\ \\hline");
         }
 
-        private void GenerateTimeRow(IBenchmarkResult benchmarkResult, int startIndex)
+        private void GenerateTimeRow(IBenchmarkResult benchmarkResult, int startIndex, int numberOfItems)
         {
             _result.Append($"{benchmarkResult.LibraryName}");
-            foreach (var result in benchmarkResult.ExecutionResults.GetRange(startIndex, _maxToolsPerRow))
+            foreach (var result in benchmarkResult.ExecutionResults.GetRange(startIndex, numberOfItems))
             {
                 _result.Append($" & {result.ExecutionTime:s\\.fff}s");
             }
@@ -138,14 +144,14 @@ namespace JsMinBenchmark.Output
             _result.AppendLine(" \\\\ \\hline");
         }
 
-        private void GenerateSizeRow(IBenchmarkResult benchmarkResult, int startIndex)
+        private void GenerateSizeRow(IBenchmarkResult benchmarkResult, int startIndex, int numberOfItems)
         {
             _result.Append($"{benchmarkResult.LibraryName}");
             if (startIndex == 0)
             {
                 _result.Append($" & {benchmarkResult.OriginalUtf8Size}");
             }
-            foreach (var result in benchmarkResult.ExecutionResults.GetRange(startIndex, _maxToolsPerRow))
+            foreach (var result in benchmarkResult.ExecutionResults.GetRange(startIndex, numberOfItems))
             {
                 _result.Append($" & {result.Utf8Size}");
             }
