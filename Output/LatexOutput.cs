@@ -160,7 +160,7 @@ namespace JsMinBenchmark.Output
                 {
                     size = size / (gZippedSize ? benchmarkResult.OriginalGZipSize : benchmarkResult.OriginalUtf8Size) * 100;
                 }
-                _result.Append($" & {size:F2}{(relative ? "%" : "")}");
+                _result.Append($" & {(relative ? $"{size:F2}\\%" : $"{size}")}");
             }
             
             _result.AppendLine(" \\\\ \\hline");
