@@ -24,6 +24,11 @@
       "name": "Vue.js",
       "version": "2.6.10",
       "directory": "VueJs"
+    },
+    {
+      "name": "Bobril TodoApp",
+      "version": "",
+      "directory":"BobrilTodoApp"
     }
   ] 
 }

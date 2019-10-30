@@ -1,33 +1,6 @@
 {
   "tools": [
     {
-      "name": "JSMin",
-      "gitSource": {
-        "url": "https://github.com/douglascrockford/JSMin.git",
-        "buildCommand": "gcc -o jsmin jsmin.c"
-      },
-      "execCommand": "./jsmin",
-      "execArguments": " < %INPUT_FILE%"
-    },
-    {
-      "name": "UglifyJS 2",
-      "npm": {
-        "package": "uglify-js",
-        "version": "2.8.29"
-      },
-      "execCommand": "./uglifyjs",
-      "execArguments": "%INPUT_FILE%"
-    },
-    {
-      "name": "UglifyJS 3",
-      "npm": {
-        "package": "uglify-js",
-        "version": "3.6.0"
-      },
-      "execCommand": "./uglifyjs",
-      "execArguments": "%INPUT_FILE%"
-    },
-    {
       "name": "Terser",
       "npm": {
         "package": "terser",
@@ -55,25 +28,6 @@
       "execArguments": "%INPUT_FILE%"
     },
     {
-      "name": "Dojo ShrinkSafe",
-      "download": {
-        "url": "https://download.dojotoolkit.org/current-stable/dojo-release-1.7.2-shrinksafe.zip",
-        "fileName": "dojoshrinksafe.zip"
-      },
-      "execCommand": "java",
-      "execArguments": "-jar shrinksafe.jar %INPUT_FILE%",
-      "execDir": "./dojo-release-1.7.2-shrinksafe"
-    },
-    {
-      "name": "YUICompressor",
-      "download": {
-        "url": "https://github.com/yui/yuicompressor/releases/download/v2.4.8/yuicompressor-2.4.8.zip",
-        "fileName": "yuicompressor.zip"
-      },
-      "execCommand": "java",
-      "execArguments": " -jar yuicompressor-2.4.8.jar --nomunge %INPUT_FILE%"
-    },
-    {
       "name": "Google Closure Compiler",
       "download": {
         "url": "https://dl.google.com/closure-compiler/compiler-20190528.zip",
@@ -81,6 +35,15 @@
       },
       "execCommand": "java",
       "execArguments": " -jar closure-compiler-v20190528.jar %INPUT_FILE%"
+    },
+    {
+      "name": "Njsast",
+      "gitSource": {
+        "url": "https://github.com/miroslavpokorny/NjsastRunner.git",
+        "buildCommand": "dotnet publish -c Release NjsastRunner/NjsastRunner.csproj -o ./bin"
+      },
+      "execCommand": "dotnet",
+      "execArguments": "./bin/NjsastRunner.dll %INPUT_FILE%"
     }
   ]
 }

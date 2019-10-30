@@ -236,7 +236,7 @@ namespace JsMinBenchmark
             {
                 var workingDirectory = $"{workingDir}/{tool.Name.Replace(' ', '_')}";
                 _logger.Info($"Clonning git repository {tool.GitSource.Url}");
-                var processStartInfo = ShellProcessStartInfo($"git clone {tool.GitSource.Url} {tool.Name}", workingDir);
+                var processStartInfo = ShellProcessStartInfo($"git clone --recurse-submodules {tool.GitSource.Url} {tool.Name}", workingDir);
                 var exitCode = await processStartInfo.RunProcessAsync();
                 if (exitCode != 0)
                 {

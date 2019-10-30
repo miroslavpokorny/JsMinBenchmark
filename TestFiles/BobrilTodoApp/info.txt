@@ -1,0 +1,2 @@
+Downloaded from
+https://github.com/Bobris/Njsast/tree/master/FunctionalTest/Input/Compress/Bobril/TodoApp/dist/a.js
