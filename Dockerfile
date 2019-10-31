@@ -17,12 +17,24 @@ RUN apt update && apt install -y \
     ca-certificates \
     curl \
     gnupg \
+    wget \
     --no-install-recommends \
     && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
     && apt-get update && apt-get install -y \
 	nodejs \
     npm \
     --no-install-recommends
+
+# Prepare for DotnetCore SDK 3.0 install
+RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg \
+    && mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/ \
+    && wget -q https://packages.microsoft.com/config/debian/9/prod.list \
+    && mv prod.list /etc/apt/sources.list.d/microsoft-prod.list \
+    && chown root:root /etc/apt/trusted.gpg.d/microsoft.asc.gpg \
+    && chown root:root /etc/apt/sources.list.d/microsoft-prod.list
+
+# Install DotnetCoreSDK 3.0
+RUN apt-get update && apt-get install -y dotnet-sdk-3.0 --no-install-recommends
 
 # Install OpenJDK-8
 RUN mkdir -p /usr/share/man/man1 && \
